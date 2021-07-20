@@ -39,7 +39,7 @@ func (c *CharacterReadRepository) Fetch(ctx context.Context, page int) ([]int, e
 	return data, nil
 }
 
-func (c *CharacterReadRepository) GetByID(ctx context.Context, id int64) (domain.Character, error) {
+func (c *CharacterReadRepository) GetByID(ctx context.Context, id int) (domain.Character, error) {
 	var character domain.Character
 
 	val, err := c.Client.Get(ctx, "marvel-character-id-"+fmt.Sprint(id)).Result()
