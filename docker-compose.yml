@@ -4,8 +4,6 @@ services:
   app:
     image: golang:1.16.6
     command: ["sh", "-c", "go build -o bin/ cmd/main.go && ./bin/main"]
-    env_file:
-      - env/common.env
     depends_on:
       - redis
       - yaichi
