@@ -83,7 +83,7 @@ func (s *CharacterHandlerTestSuite) TestSuccessGetByID() {
 	ctx.SetParamNames("id")
 	ctx.SetParamValues(strconv.Itoa(id))
 
-        s.usecase.On("GetByID", mock.Anything, int64(id)).Return(record, nil).Once()
+        s.usecase.On("GetByID", mock.Anything, id).Return(record, nil).Once()
 
         err = s.handler.GetByID(ctx)
         s.Assert().Equal(err, nil)
@@ -108,7 +108,7 @@ func (s *CharacterHandlerTestSuite) TestFailedGetByID() {
 	ctx.SetParamNames("id")
 	ctx.SetParamValues(strconv.Itoa(id))
 
-        s.usecase.On("GetByID", mock.Anything, int64(id)).Return(record, errors.New("SomeError")).Once()
+        s.usecase.On("GetByID", mock.Anything, id).Return(record, errors.New("SomeError")).Once()
 
         err = s.handler.GetByID(ctx)
         s.Assert().Equal(err, nil)

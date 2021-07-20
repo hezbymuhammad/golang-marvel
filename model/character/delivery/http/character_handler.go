@@ -66,7 +66,7 @@ func (h *CharacterHandler) GetByID(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	character, err := h.Usecase.GetByID(ctx, int64(id))
+	character, err := h.Usecase.GetByID(ctx, id)
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
