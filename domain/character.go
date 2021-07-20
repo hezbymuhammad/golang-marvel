@@ -9,7 +9,7 @@ type Character struct {
 	ID          uint      `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
-	FetchedAt   time.Time `json:"-"`
+	FetchedAt   time.Time `json:"fetchedAt"`
 }
 
 type CharacterUsecase interface {
