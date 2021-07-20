@@ -3,6 +3,7 @@ package repository_test
 import (
 	"context"
 	"encoding/json"
+        "errors"
 	"testing"
 	"time"
 
@@ -42,6 +43,7 @@ func (s *CharacterReadRepositoryTestSuite) SetupTest() {
 }
 
 func (s *CharacterReadRepositoryTestSuite) TestNilFetch() {
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, nil))
 	s.mock.On("Get", mock.Anything, "marvel-characters-page-1").Return(redis.NewStringResult("", nil))
 
 	_, err := s.repo.Fetch(context.Background(), 1)
@@ -49,7 +51,22 @@ func (s *CharacterReadRepositoryTestSuite) TestNilFetch() {
 }
 
 func (s *CharacterReadRepositoryTestSuite) TestFailedJSONFetch() {
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, nil))
 	s.mock.On("Get", mock.Anything, "marvel-characters-page-2").Return(redis.NewStringResult("val", nil))
+
+	_, err := s.repo.Fetch(context.Background(), 2)
+	s.Assert().Equal(err, domain.ErrInternalServerError)
+}
+
+func (s *CharacterReadRepositoryTestSuite) TestFailedEmptyKeyFetch() {
+	s.mock.On("Exists", mock.Anything, []string{"marvel-characters-page-2"}).Return(redis.NewIntResult(0, nil))
+
+	_, err := s.repo.Fetch(context.Background(), 2)
+	s.Assert().Equal(err, domain.ErrCacheKeyEmpty)
+}
+
+func (s *CharacterReadRepositoryTestSuite) TestFailedErrorEmptyKeyFetch() {
+	s.mock.On("Exists", mock.Anything, []string{"marvel-characters-page-2"}).Return(redis.NewIntResult(0, errors.New("fail")))
 
 	_, err := s.repo.Fetch(context.Background(), 2)
 	s.Assert().Equal(err, domain.ErrInternalServerError)
@@ -63,6 +80,7 @@ func (s *CharacterReadRepositoryTestSuite) TestSuccessFetch() {
 	}
 
 	s.mock.On("Get", mock.Anything, "marvel-characters-page-3").Return(redis.NewStringResult(string(json_data), nil))
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, nil))
 	res, err := s.repo.Fetch(context.Background(), 3)
 	s.Assert().Equal(err, nil)
 	s.Assert().Equal(res, IDs)
@@ -70,13 +88,29 @@ func (s *CharacterReadRepositoryTestSuite) TestSuccessFetch() {
 
 func (s *CharacterReadRepositoryTestSuite) TestNilGetByID() {
 	s.mock.On("Get", mock.Anything, "marvel-character-id-1").Return(redis.NewStringResult("", nil))
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, nil))
 
 	_, err := s.repo.GetByID(context.Background(), 1)
 	s.Assert().Equal(err, domain.ErrNotFound)
 }
 
 func (s *CharacterReadRepositoryTestSuite) TestFailedJSONGetByID() {
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, nil))
 	s.mock.On("Get", mock.Anything, "marvel-character-id-2").Return(redis.NewStringResult("val", nil))
+
+	_, err := s.repo.GetByID(context.Background(), 2)
+	s.Assert().Equal(err, domain.ErrInternalServerError)
+}
+
+func (s *CharacterReadRepositoryTestSuite) TestEmptyKeyGetByID() {
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(0, nil))
+
+	_, err := s.repo.GetByID(context.Background(), 2)
+	s.Assert().Equal(err, domain.ErrCacheKeyEmpty)
+}
+
+func (s *CharacterReadRepositoryTestSuite) TestErrorEmptyKeyGetByID() {
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, errors.New("err")))
 
 	_, err := s.repo.GetByID(context.Background(), 2)
 	s.Assert().Equal(err, domain.ErrInternalServerError)
@@ -94,6 +128,7 @@ func (s *CharacterReadRepositoryTestSuite) TestSuccessGetByID() {
 		s.T().Fatalf("Error: '%s'", err)
 	}
 
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, nil))
 	s.mock.On("Get", mock.Anything, "marvel-character-id-3").Return(redis.NewStringResult(string(json_data), nil))
 
 	res, err := s.repo.GetByID(context.Background(), 3)

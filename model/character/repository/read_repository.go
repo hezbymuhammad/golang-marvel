@@ -22,8 +22,17 @@ func NewCharacterReadRepository(Conn redis.Cmdable) domain.CharacterReadReposito
 
 func (c *CharacterReadRepository) Fetch(ctx context.Context, page int) ([]int, error) {
 	var data []int
+        key := "marvel-characters-page-"+fmt.Sprint(page)
 
-	val, err := c.Client.Get(ctx, "marvel-characters-page-"+fmt.Sprint(page)).Result()
+        isEmpty, err := c.checkRedisKeyEmpty(ctx, key)
+	if err != nil {
+		return nil, domain.ErrInternalServerError
+	}
+        if isEmpty {
+                return nil, domain.ErrCacheKeyEmpty
+        }
+
+	val, err := c.Client.Get(ctx, key).Result()
 	if err != nil {
 		return nil, domain.ErrInternalServerError
 	}
@@ -41,8 +50,17 @@ func (c *CharacterReadRepository) Fetch(ctx context.Context, page int) ([]int, e
 
 func (c *CharacterReadRepository) GetByID(ctx context.Context, id int) (domain.Character, error) {
 	var character domain.Character
+        key := "marvel-character-id-"+fmt.Sprint(id)
 
-	val, err := c.Client.Get(ctx, "marvel-character-id-"+fmt.Sprint(id)).Result()
+        isEmpty, err := c.checkRedisKeyEmpty(ctx, key)
+	if err != nil {
+		return domain.Character{}, domain.ErrInternalServerError
+	}
+        if isEmpty {
+                return domain.Character{}, domain.ErrCacheKeyEmpty
+        }
+
+	val, err := c.Client.Get(ctx, key).Result()
 	if err != nil {
 		return domain.Character{}, domain.ErrInternalServerError
 	}
@@ -56,4 +74,13 @@ func (c *CharacterReadRepository) GetByID(ctx context.Context, id int) (domain.C
 	}
 
 	return character, nil
+}
+
+func (c *CharacterReadRepository) checkRedisKeyEmpty(ctx context.Context, str string) (bool, error) {
+        val, err := c.Client.Exists(ctx, str).Result()
+	if err != nil {
+		return false, domain.ErrInternalServerError
+	}
+
+        return val == 0, nil
 }
