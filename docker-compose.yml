@@ -4,12 +4,14 @@ services:
   app:
     image: golang:1.16.6
     command: ["sh", "-c", "go build -o bin/ cmd/main.go && ./bin/main"]
+    ports:
+      - 8080:8080
     depends_on:
       - redis
-      - yaichi
     working_dir: /app
     volumes:
       - home:/root
+      - gocache:/go
       - .:/app
 
   swagger:
@@ -17,21 +19,11 @@ services:
     environment:
       API_URL: 'openapi/swagger.yaml'
       PORT: 3000
-    depends_on:
-      - yaichi
     volumes:
       - ./swagger.yaml:/usr/share/nginx/html/openapi/swagger.yaml
-
-  yaichi:
-    image: mtsmfm/yaichi:1.5.0
-    ports:
-      - 80:3000
-      - 35729:35729
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
   redis:
     image: redis
 
 volumes:
   home:
+  gocache:
