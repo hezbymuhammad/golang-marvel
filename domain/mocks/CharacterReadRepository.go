@@ -38,18 +38,18 @@ func (_m *CharacterReadRepository) Fetch(ctx context.Context, page int) ([]int, 
 }
 
 // GetByID provides a mock function with given fields: ctx, id
-func (_m *CharacterReadRepository) GetByID(ctx context.Context, id int64) (domain.Character, error) {
+func (_m *CharacterReadRepository) GetByID(ctx context.Context, id int) (domain.Character, error) {
 	ret := _m.Called(ctx, id)
 
 	var r0 domain.Character
-	if rf, ok := ret.Get(0).(func(context.Context, int64) domain.Character); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int) domain.Character); ok {
 		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Get(0).(domain.Character)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
 		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
