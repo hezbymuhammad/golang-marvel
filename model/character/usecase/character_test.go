@@ -69,10 +69,10 @@ func (s *CharacterUsecaseTestSuite) TestSuccessGetByID() {
                 Description: "Lorem",
                 FetchedAt: time.Now(),
         }
-        s.readRepo.On("GetByID", mock.Anything, int64(1)).Return(record, nil).Once()
-        s.writeRepo.On("StoreByID", mock.Anything, int64(1)).Return(nil).Once()
+        s.readRepo.On("GetByID", mock.Anything, 1).Return(record, nil).Once()
+        s.writeRepo.On("StoreByID", mock.Anything, 1).Return(nil).Once()
 
-        res, err := s.usecase.GetByID(context.Background(), int64(1))
+        res, err := s.usecase.GetByID(context.Background(), 1)
         s.Assert().Equal(res, record)
         s.Assert().Equal(err, nil)
 }
@@ -85,10 +85,10 @@ func (s *CharacterUsecaseTestSuite) TestFailedGetByID() {
                 FetchedAt: time.Now(),
         }
         dummy_err := errors.New("SomeError")
-        s.readRepo.On("GetByID", mock.Anything, int64(1)).Return(record, dummy_err).Once()
-        s.writeRepo.On("StoreByID", mock.Anything, int64(1)).Return(nil).Once()
+        s.readRepo.On("GetByID", mock.Anything, 1).Return(record, dummy_err).Once()
+        s.writeRepo.On("StoreByID", mock.Anything, 1).Return(nil).Once()
 
-        res, err := s.usecase.GetByID(context.Background(), int64(1))
+        res, err := s.usecase.GetByID(context.Background(), 1)
         s.Assert().Equal(res, domain.Character{})
         s.Assert().Equal(err, dummy_err)
 }
@@ -100,10 +100,10 @@ func (s *CharacterUsecaseTestSuite) TestFailedStoreByID() {
                 Description: "Lorem",
                 FetchedAt: time.Now(),
         }
-        s.readRepo.On("GetByID", mock.Anything, int64(1)).Return(record, nil).Once()
-        s.writeRepo.On("StoreByID", mock.Anything, int64(1)).Return(errors.New("SomeError")).Once()
+        s.readRepo.On("GetByID", mock.Anything, 1).Return(record, nil).Once()
+        s.writeRepo.On("StoreByID", mock.Anything, 1).Return(errors.New("SomeError")).Once()
 
-        res, err := s.usecase.GetByID(context.Background(), int64(1))
+        res, err := s.usecase.GetByID(context.Background(), 1)
         s.Assert().Equal(res, record)
         s.Assert().Equal(err, nil)
 }

@@ -42,7 +42,7 @@ func (cu *characterUsecase) Fetch(c context.Context, page int) ([]int, error) {
         return res, nil
 }
 
-func (cu *characterUsecase) GetByID(c context.Context, id int64) (domain.Character, error) {
+func (cu *characterUsecase) GetByID(c context.Context, id int) (domain.Character, error) {
         ctx, cancel := context.WithTimeout(c, cu.contextTimeout)
 	defer cancel()
 
