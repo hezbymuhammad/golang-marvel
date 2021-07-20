@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/mock"
         "github.com/stretchr/testify/suite"
 
-	"github.com/hezbymuhammad/golang-marvel-demo/domain"
-	"github.com/hezbymuhammad/golang-marvel-demo/domain/mocks"
-	characterHttp "github.com/hezbymuhammad/golang-marvel-demo/model/character/delivery/http"
+	"github.com/hezbymuhammad/golang-marvel/domain"
+	"github.com/hezbymuhammad/golang-marvel/domain/mocks"
+	characterHttp "github.com/hezbymuhammad/golang-marvel/model/character/delivery/http"
 )
 
 type CharacterHandlerTestSuite struct {

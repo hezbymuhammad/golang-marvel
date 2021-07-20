@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/viper"
 	redis "github.com/go-redis/redis/v8"
 
-	characterRepository "github.com/hezbymuhammad/golang-marvel-demo/model/article/repository"
-	characterUsecase "github.com/hezbymuhammad/golang-marvel-demo/model/article/usecase"
-	characterHttpDelivery "github.com/hezbymuhammad/golang-marvel-demo/model/article/delivery/http"
+	characterRepository "github.com/hezbymuhammad/golang-marvel/model/article/repository"
+	characterUsecase "github.com/hezbymuhammad/golang-marvel/model/article/usecase"
+	characterHttpDelivery "github.com/hezbymuhammad/golang-marvel/model/article/delivery/http"
 )
 
 func init() {

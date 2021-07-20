@@ -4,3 +4,4 @@ bin/*
 coverage.out
 coverage.html
 config/common.json
+.tool-versions

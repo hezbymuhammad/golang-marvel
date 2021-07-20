@@ -7,7 +7,7 @@ import (
 
 	redis "github.com/go-redis/redis/v8"
 
-	"github.com/hezbymuhammad/golang-marvel-demo/domain"
+	"github.com/hezbymuhammad/golang-marvel/domain"
 )
 
 type CharacterReadRepository struct {
