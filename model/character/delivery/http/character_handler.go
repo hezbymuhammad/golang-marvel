@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo"
 
-	"hezbymuhammad/golang-marvel-demo/domain"
+	"github.com/hezbymuhammad/golang-marvel-demo/domain"
 )
 
 type ResponseError struct {

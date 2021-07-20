@@ -13,8 +13,8 @@ import (
 	"github.com/stretchr/testify/suite"
 	gock "gopkg.in/h2non/gock.v1"
 
-	"hezbymuhammad/golang-marvel-demo/domain"
-	"hezbymuhammad/golang-marvel-demo/model/character/repository"
+	"github.com/hezbymuhammad/golang-marvel-demo/domain"
+	"github.com/hezbymuhammad/golang-marvel-demo/model/character/repository"
 )
 
 type CharacterWriteRepositoryTestSuite struct {

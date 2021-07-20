@@ -5,7 +5,7 @@ import (
 	"time"
 	"fmt"
 
-	"hezbymuhammad/golang-marvel-demo/domain"
+	"github.com/hezbymuhammad/golang-marvel-demo/domain"
 )
 
 type characterUsecase struct {

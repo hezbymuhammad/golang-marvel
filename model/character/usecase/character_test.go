@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/mock"
         "github.com/stretchr/testify/suite"
 
-	"hezbymuhammad/golang-marvel-demo/domain"
-	"hezbymuhammad/golang-marvel-demo/domain/mocks"
-	"hezbymuhammad/golang-marvel-demo/model/character/usecase"
+	"github.com/hezbymuhammad/golang-marvel-demo/domain"
+	"github.com/hezbymuhammad/golang-marvel-demo/domain/mocks"
+	"github.com/hezbymuhammad/golang-marvel-demo/model/character/usecase"
 )
 
 type CharacterUsecaseTestSuite struct {

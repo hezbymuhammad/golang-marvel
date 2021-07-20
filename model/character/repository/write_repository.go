@@ -15,7 +15,7 @@ import (
 	redis "github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 
-	"hezbymuhammad/golang-marvel-demo/domain"
+	"github.com/hezbymuhammad/golang-marvel-demo/domain"
 )
 
 var (
