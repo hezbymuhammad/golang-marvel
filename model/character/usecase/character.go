@@ -27,7 +27,7 @@ func (cu *characterUsecase) Fetch(c context.Context, page int) ([]int, error) {
 	defer cancel()
 
         go func() {
-                err := cu.characterWriteRepo.StoreByPage(ctx, page)
+                err := cu.characterWriteRepo.StoreByPage(context.Background(), page)
                 if(err != nil) {
                         fmt.Errorf("Error saving page %d", page)
                 }
@@ -47,7 +47,7 @@ func (cu *characterUsecase) GetByID(c context.Context, id int) (domain.Character
 	defer cancel()
 
         go func() {
-                err := cu.characterWriteRepo.StoreByID(ctx, id)
+                err := cu.characterWriteRepo.StoreByID(context.Background(), id)
                 if(err != nil) {
                         fmt.Errorf("Error saving id %d", id)
                 }

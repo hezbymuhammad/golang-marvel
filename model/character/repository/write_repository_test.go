@@ -47,7 +47,7 @@ func (s *CharacterWriteRepositoryTestSuite) SetupTest() {
 }
 
 func (s *CharacterWriteRepositoryTestSuite) TestSuccessStoreByPage() {
-	gock.New("http://foo.com").Get("/v1/public/characters/").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
+	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
 	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-1", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", nil))
 	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
 
@@ -56,21 +56,21 @@ func (s *CharacterWriteRepositoryTestSuite) TestSuccessStoreByPage() {
 }
 
 func (s *CharacterWriteRepositoryTestSuite) TestNilDataStoreByPage() {
-	gock.New("http://foo.com").Get("/v1/public/characters/").Reply(200).BodyString("{\"data\": {  }}")
+	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("{\"data\": {  }}")
 
 	err := s.repo.StoreByPage(context.Background(), 1)
 	s.Assert().Equal(err, domain.ErrNotFound)
 }
 
 func (s *CharacterWriteRepositoryTestSuite) TestFailedJSONStoreByPage() {
-	gock.New("http://foo.com").Get("/v1/public/characters/").Reply(200).BodyString("val")
+	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("val")
 
 	err := s.repo.StoreByPage(context.Background(), 1)
 	s.Assert().Equal(err, domain.ErrInternalServerError)
 }
 
 func (s *CharacterWriteRepositoryTestSuite) TestFailedRedisStoreByPage() {
-	gock.New("http://foo.com").Get("/v1/public/characters/").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
+	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
 	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-1", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", errors.New("error")))
 	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
 

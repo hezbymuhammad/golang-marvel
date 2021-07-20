@@ -67,7 +67,7 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 	}
 	offset := 100 * pageNorm
 
-	req, err := http.NewRequest("GET", r.api+"/v1/public/characters/", nil)
+	req, err := http.NewRequest("GET", r.api+"/v1/public/characters", nil)
 	if err != nil {
 		return domain.ErrInternalServerError
 	}
@@ -180,7 +180,7 @@ func (r *CharacterWriteRepository) storePage(ctx context.Context, IDs []int, pag
 		return err
 	}
 	_, err = r.redisClient.Set(ctx, "marvel-characters-page-"+fmt.Sprint(page), string(json_data), r.cacheExpiration).Result()
-	return err
+        return err
 }
 
 func (r *CharacterWriteRepository) storeCharacters(ctx context.Context, chars []domain.Character) error {
@@ -205,9 +205,7 @@ func (r *CharacterWriteRepository) storeCharacter(ctx context.Context, char doma
 
 func (cs Characters) Each(workers int, fn func(domain.Character, *sync.WaitGroup) error) error {
 	var wg sync.WaitGroup
-	wgDone := make(chan bool)
 	err := make(chan error)
-	var er error
 
 	for i, c := range cs {
 		wg.Add(1)
@@ -219,15 +217,5 @@ func (cs Characters) Each(workers int, fn func(domain.Character, *sync.WaitGroup
 		}
 	}
 
-	wg.Wait()
-	close(wgDone)
-
-	select {
-	case <-wgDone:
-		break
-	case er = <-err:
-		close(err)
-	}
-
-	return er
+        return <-err
 }
