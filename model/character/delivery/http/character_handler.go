@@ -36,19 +36,26 @@ type CharacterHandler struct {
 	Usecase domain.CharacterUsecase
 }
 
-func NewCharacterHandler(e *echo.Echo, u domain.CharacterUsecase) {
+func NewCharacterHandler(e *echo.Echo, u domain.CharacterUsecase) *CharacterHandler {
 	handler := &CharacterHandler{
 		Usecase: u,
 	}
 	e.GET("/characters", handler.Fetch)
 	e.GET("/characters/", handler.Fetch)
 	e.GET("/characters/:id", handler.GetByID)
+
+        return handler
 }
 
 func (h *CharacterHandler) Fetch(c echo.Context) error {
-	page, err := strconv.Atoi(c.QueryParam("page"))
+        pageRaw := c.QueryParam("page")
+        if pageRaw == "" {
+                pageRaw = "0"
+        }
+
+        page, err := strconv.Atoi(pageRaw)
 	if err != nil {
-		page = 0
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: "Bad request param"})
 	}
 
 	ctx := c.Request().Context()
@@ -58,13 +65,13 @@ func (h *CharacterHandler) Fetch(c echo.Context) error {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, IDs)
+	return c.JSON(getStatusCode(err), IDs)
 }
 
 func (h *CharacterHandler) GetByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusNotFound, domain.ErrNotFound.Error())
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: "Bad request param"})
 	}
 
 	ctx := c.Request().Context()
@@ -74,5 +81,5 @@ func (h *CharacterHandler) GetByID(c echo.Context) error {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, character)
+	return c.JSON(getStatusCode(err), character)
 }
