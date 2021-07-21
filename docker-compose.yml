@@ -23,7 +23,10 @@ services:
       - ./swagger.yaml:/usr/share/nginx/html/openapi/swagger.yaml
   redis:
     image: redis
+    volumes:
+      - redis-data:/data
 
 volumes:
   home:
   gocache:
+  redis-data:
