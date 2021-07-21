@@ -211,6 +211,9 @@ func (r *CharacterWriteRepository) storePage(ctx context.Context, IDs []int, pag
 }
 
 func (r *CharacterWriteRepository) storeCharacters(ctx context.Context, chars []domain.Character) error {
+        json_data, _ := json.Marshal(getArrayFromCharacters(chars))
+        log.Println("[INFO] Caching character IDs: " + string(json_data))
+
 	return Characters(chars).Each(10, func(c domain.Character, wg *sync.WaitGroup) error {
 		err := r.storeCharacter(ctx, c)
 		wg.Done()
@@ -264,6 +267,7 @@ func (cs Characters) Each(workers int, fn func(domain.Character, *sync.WaitGroup
 			wg.Wait()
 		}
 	}
+        wg.Wait()
 
         return <-err
 }
