@@ -25,6 +25,8 @@ func getStatusCode(err error) int {
 		return http.StatusInternalServerError
 	case domain.ErrNotFound:
 		return http.StatusNotFound
+	case domain.ErrCacheKeyEmpty:
+		return http.StatusNotFound
 	default:
 		return http.StatusInternalServerError
 	}
