@@ -107,11 +107,8 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 	}
 
 	err = r.storeCharacters(ctx, rs.Data.Results)
-	if err != nil {
-		return domain.ErrInternalServerError
-	}
 
-	return nil
+	return err
 }
 
 func (r *CharacterWriteRepository) StoreByID(ctx context.Context, id int) error {
@@ -153,11 +150,8 @@ func (r *CharacterWriteRepository) StoreByID(ctx context.Context, id int) error 
 
 	char := rs.Data.Results[0]
 	err = r.storeCharacter(ctx, char)
-	if err != nil {
-		return domain.ErrInternalServerError
-	}
 
-	return nil
+	return err
 }
 
 func generateHash(salt, publicKey, privateKey string) string {
@@ -175,11 +169,21 @@ func getArrayFromCharacters(chars []domain.Character) []int {
 }
 
 func (r *CharacterWriteRepository) storePage(ctx context.Context, IDs []int, page int) error {
+        key := "marvel-characters-page-"+fmt.Sprint(page)
+
+        isExists, err := r.checkRedisKeyExists(ctx, key)
+	if err != nil {
+		return domain.ErrInternalServerError
+	}
+        if isExists {
+                return domain.ErrCacheKeyExists
+        }
+
 	json_data, err := json.Marshal(IDs)
 	if err != nil {
 		return err
 	}
-	_, err = r.redisClient.Set(ctx, "marvel-characters-page-"+fmt.Sprint(page), string(json_data), r.cacheExpiration).Result()
+	_, err = r.redisClient.Set(ctx, key, string(json_data), r.cacheExpiration).Result()
         return err
 }
 
@@ -192,15 +196,36 @@ func (r *CharacterWriteRepository) storeCharacters(ctx context.Context, chars []
 }
 
 func (r *CharacterWriteRepository) storeCharacter(ctx context.Context, char domain.Character) error {
+        key := "marvel-character-id-"+fmt.Sprint(char.ID)
 	char.FetchedAt = time.Now()
+
+        isExists, err := r.checkRedisKeyExists(ctx, key)
+	if err != nil {
+		return domain.ErrInternalServerError
+	}
+        if isExists {
+                return domain.ErrCacheKeyExists
+        }
 
 	json_data, err := json.Marshal(char)
 	if err != nil {
 		return err
 	}
 
-	_, err = r.redisClient.Set(ctx, "marvel-character-id-"+fmt.Sprint(char.ID), string(json_data), r.cacheExpiration).Result()
-	return err
+	_, err = r.redisClient.Set(ctx, key, string(json_data), r.cacheExpiration).Result()
+        if err != nil {
+                return domain.ErrInternalServerError
+        }
+	return nil
+}
+
+func (r *CharacterWriteRepository) checkRedisKeyExists(ctx context.Context, str string) (bool, error) {
+        val, err := r.redisClient.Exists(ctx, str).Result()
+	if err != nil {
+		return false, domain.ErrInternalServerError
+	}
+
+        return val == 1, nil
 }
 
 func (cs Characters) Each(workers int, fn func(domain.Character, *sync.WaitGroup) error) error {

@@ -7,4 +7,5 @@ var (
 	ErrNotFound = errors.New("Resource not found")
 	ErrBadRequest = errors.New("Bad request error")
 	ErrCacheKeyEmpty = errors.New("Preparing resource. Try again")
+	ErrCacheKeyExists = errors.New("Cache exists. Not writing to cache")
 )

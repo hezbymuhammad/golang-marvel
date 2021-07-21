@@ -50,6 +50,7 @@ func (s *CharacterWriteRepositoryTestSuite) TestSuccessStoreByPage() {
 	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
 	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-1", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", nil))
 	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
+	s.redisMock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(0, nil))
 
 	err := s.repo.StoreByPage(context.Background(), 1)
 	s.Assert().Equal(err, nil)
@@ -73,37 +74,48 @@ func (s *CharacterWriteRepositoryTestSuite) TestFailedRedisStoreByPage() {
 	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
 	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-1", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", errors.New("error")))
 	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
+	s.redisMock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(0, nil))
 
 	err := s.repo.StoreByPage(context.Background(), 1)
 	s.Assert().Equal(err, domain.ErrInternalServerError)
 }
 
 func (s *CharacterWriteRepositoryTestSuite) TestSuccessStoreByID() {
-	gock.New("http://foo.com").Get("/v1/public/characters/1").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
-	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
+	gock.New("http://foo.com").Get("/v1/public/characters/1").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 10113341, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
+	s.redisMock.On("Set", mock.Anything, "marvel-character-id-10113341", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
+	s.redisMock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(0, nil))
 
 	err := s.repo.StoreByID(context.Background(), 1)
 	s.Assert().Equal(err, nil)
 }
 
 func (s *CharacterWriteRepositoryTestSuite) TestNilDataStoreByID() {
-	gock.New("http://foo.com").Get("/v1/public/characters/1").Reply(200).BodyString("{\"data\": {  }}")
+	gock.New("http://foo.com").Get("/v1/public/characters/2").Reply(200).BodyString("{\"data\": {  }}")
 
-	err := s.repo.StoreByID(context.Background(), 1)
+	err := s.repo.StoreByID(context.Background(), 2)
 	s.Assert().Equal(err, domain.ErrNotFound)
 }
 
 func (s *CharacterWriteRepositoryTestSuite) TestFailedJSONStoreByID() {
-	gock.New("http://foo.com").Get("/v1/public/characters/1").Reply(200).BodyString("val")
+	gock.New("http://foo.com").Get("/v1/public/characters/3").Reply(200).BodyString("val")
 
-	err := s.repo.StoreByID(context.Background(), 1)
+	err := s.repo.StoreByID(context.Background(), 3)
 	s.Assert().Equal(err, domain.ErrInternalServerError)
 }
 
 func (s *CharacterWriteRepositoryTestSuite) TestFailedRedisStoreByID() {
-	gock.New("http://foo.com").Get("/v1/public/characters/1").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
-	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", errors.New("error")))
+	gock.New("http://foo.com").Get("/v1/public/characters/4").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 10113344, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
+	s.redisMock.On("Set", mock.Anything, "marvel-character-id-10113344", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", errors.New("error")))
+	s.redisMock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(0, nil))
 
-	err := s.repo.StoreByID(context.Background(), 1)
+	err := s.repo.StoreByID(context.Background(), 4)
 	s.Assert().Equal(err, domain.ErrInternalServerError)
+}
+
+func (s *CharacterWriteRepositoryTestSuite) TestRedisKeyExistsStoreByID() {
+	gock.New("http://foo.com").Get("/v1/public/characters/5").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 10113345, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
+	s.redisMock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, nil))
+
+	err := s.repo.StoreByID(context.Background(), 5)
+	s.Assert().Equal(err, domain.ErrCacheKeyExists)
 }
