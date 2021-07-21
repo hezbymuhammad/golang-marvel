@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"time"
-        "log"
 
 	"github.com/hezbymuhammad/golang-marvel-demo/domain"
 )
@@ -27,10 +26,7 @@ func (cu *characterUsecase) Fetch(c context.Context, page int) ([]int, error) {
 	defer cancel()
 
         go func() {
-                err := cu.characterWriteRepo.StoreByPage(context.Background(), page)
-                if(err != nil) {
-                        log.Printf("Error saving page %d: %v", page, err)
-                }
+                _ = cu.characterWriteRepo.StoreByPage(context.Background(), page)
         }()
 
         res, err := cu.characterReadRepo.Fetch(ctx, page)
@@ -47,10 +43,7 @@ func (cu *characterUsecase) GetByID(c context.Context, id int) (domain.Character
 	defer cancel()
 
         go func() {
-                err := cu.characterWriteRepo.StoreByID(context.Background(), id)
-                if(err != nil) {
-                        log.Printf("Error saving id %d: %v", id, err)
-                }
+                _ = cu.characterWriteRepo.StoreByID(context.Background(), id)
         }()
 
         res, err := cu.characterReadRepo.GetByID(ctx, id)

@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+        "log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -65,7 +66,8 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 	} else {
 		pageNorm = 0
 	}
-	offset := 100 * pageNorm
+        limit := 10
+	offset := 10 * pageNorm
 
 	req, err := http.NewRequest("GET", r.api+"/v1/public/characters", nil)
 	if err != nil {
@@ -77,12 +79,14 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 	q.Add("apikey", r.publicKey)
 	q.Add("hash", hash)
 	q.Add("offset", strconv.Itoa(offset))
+	q.Add("limit", strconv.Itoa(limit))
 
 	req.URL.RawQuery = q.Encode()
 
 	res, err := r.httpClient.Do(req)
 	defer res.Body.Close()
 	if err != nil {
+                log.Println("[ERROR][CharacterWriteRepository] StoreByPage httpClient.Do: " + err.Error())
 		return domain.ErrInternalServerError
 	}
 
@@ -94,6 +98,7 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 	var rs response
 	err = json.NewDecoder(res.Body).Decode(&rs)
 	if err != nil {
+                log.Println("[ERROR][CharacterWriteRepository] StoreByPage NewDecoder: " + err.Error())
 		return domain.ErrInternalServerError
 	}
 	if len(rs.Data.Results) == 0 {
@@ -103,12 +108,17 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 	IDs := getArrayFromCharacters(rs.Data.Results)
 	err = r.storePage(ctx, IDs, page)
 	if err != nil {
+                log.Println("[INFO][CharacterWriteRepository] StoreByPage storePage: " + err.Error())
 		return domain.ErrInternalServerError
 	}
 
 	err = r.storeCharacters(ctx, rs.Data.Results)
+        if err != nil {
+                log.Println("[WARNING][CharacterWriteRepository] StoreByPage storeCharacters: " + err.Error())
+		return domain.ErrCacheKeyExists
+        }
 
-	return err
+	return nil
 }
 
 func (r *CharacterWriteRepository) StoreByID(ctx context.Context, id int) error {
@@ -126,6 +136,7 @@ func (r *CharacterWriteRepository) StoreByID(ctx context.Context, id int) error 
 
 	res, err := r.httpClient.Get(url.String())
 	if err != nil {
+                log.Println("[ERROR][CharacterWriteRepository] StoreByID httpClient: " + err.Error())
 		return domain.ErrInternalServerError
 	}
 	defer res.Body.Close()
@@ -142,6 +153,7 @@ func (r *CharacterWriteRepository) StoreByID(ctx context.Context, id int) error 
 	var rs response
 	err = json.NewDecoder(res.Body).Decode(&rs)
 	if err != nil {
+                log.Println("[ERROR][CharacterWriteRepository] StoreByID Decode: " + err.Error())
 		return domain.ErrInternalServerError
 	}
 	if len(rs.Data.Results) == 0 {
@@ -150,8 +162,11 @@ func (r *CharacterWriteRepository) StoreByID(ctx context.Context, id int) error 
 
 	char := rs.Data.Results[0]
 	err = r.storeCharacter(ctx, char)
-
-	return err
+        if err != nil {
+                log.Println("[INFO][CharacterWriteRepository] StoreByID storeCharacter: " + err.Error())
+                return domain.ErrInternalServerError
+        }
+        return nil
 }
 
 func generateHash(salt, publicKey, privateKey string) string {
@@ -173,7 +188,7 @@ func (r *CharacterWriteRepository) storePage(ctx context.Context, IDs []int, pag
 
         isExists, err := r.checkRedisKeyExists(ctx, key)
 	if err != nil {
-		return domain.ErrInternalServerError
+		return err
 	}
         if isExists {
                 return domain.ErrCacheKeyExists
@@ -201,7 +216,7 @@ func (r *CharacterWriteRepository) storeCharacter(ctx context.Context, char doma
 
         isExists, err := r.checkRedisKeyExists(ctx, key)
 	if err != nil {
-		return domain.ErrInternalServerError
+		return err
 	}
         if isExists {
                 return domain.ErrCacheKeyExists
@@ -214,7 +229,7 @@ func (r *CharacterWriteRepository) storeCharacter(ctx context.Context, char doma
 
 	_, err = r.redisClient.Set(ctx, key, string(json_data), r.cacheExpiration).Result()
         if err != nil {
-                return domain.ErrInternalServerError
+                return err
         }
 	return nil
 }
@@ -222,7 +237,7 @@ func (r *CharacterWriteRepository) storeCharacter(ctx context.Context, char doma
 func (r *CharacterWriteRepository) checkRedisKeyExists(ctx context.Context, str string) (bool, error) {
         val, err := r.redisClient.Exists(ctx, str).Result()
 	if err != nil {
-		return false, domain.ErrInternalServerError
+		return false, err
 	}
 
         return val == 1, nil

@@ -1,18 +1,18 @@
 {
         "marvel_api": {
-                "url": "https://gateway.marvel.com",
+                "url": "https://gateway.marvel.com:443",
                 "private_key": "",
                 "public_key": "",
-                "timeout_in_sec": 300
+                "timeout_in_sec": 120 // 2 minutes
         },
         "redis": {
                 "host": "redis",
                 "port": "6379"
         },
-        "cache_expiration_in_sec": 604800,
+        "cache_expiration_in_sec": 604800, // 1 week
         "server": {
-                "timeout_in_sec": 180,
-                "address": ":3000"
+                "timeout_in_sec": 60, // 1 minutes
+                "address": ":8080"
         }
 
 }

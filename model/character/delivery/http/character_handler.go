@@ -25,8 +25,6 @@ func getStatusCode(err error) int {
 		return http.StatusInternalServerError
 	case domain.ErrNotFound:
 		return http.StatusNotFound
-	case domain.ErrCacheKeyEmpty:
-		return http.StatusAccepted
 	default:
 		return http.StatusInternalServerError
 	}
@@ -41,13 +39,14 @@ func NewCharacterHandler(e *echo.Echo, u domain.CharacterUsecase) {
 		Usecase: u,
 	}
 	e.GET("/characters", handler.Fetch)
+	e.GET("/characters/", handler.Fetch)
 	e.GET("/characters/:id", handler.GetByID)
 }
 
 func (h *CharacterHandler) Fetch(c echo.Context) error {
 	page, err := strconv.Atoi(c.QueryParam("page"))
 	if err != nil {
-		return c.JSON(http.StatusNotFound, domain.ErrNotFound.Error())
+		page = 0
 	}
 
 	ctx := c.Request().Context()

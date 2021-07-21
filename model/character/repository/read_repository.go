@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+        "log"
 
 	redis "github.com/go-redis/redis/v8"
 
@@ -26,6 +27,7 @@ func (c *CharacterReadRepository) Fetch(ctx context.Context, page int) ([]int, e
 
         isEmpty, err := c.checkRedisKeyEmpty(ctx, key)
 	if err != nil {
+                log.Println("[ERROR][CharacterReadRepository] Fetch checkRedisKeyEmpty: " + err.Error())
 		return nil, domain.ErrInternalServerError
 	}
         if isEmpty {
@@ -34,6 +36,7 @@ func (c *CharacterReadRepository) Fetch(ctx context.Context, page int) ([]int, e
 
 	val, err := c.Client.Get(ctx, key).Result()
 	if err != nil {
+                log.Println("[ERROR][CharacterReadRepository] Fetch Get: " + err.Error())
 		return nil, domain.ErrInternalServerError
 	}
 	if len(val) == 0 {
@@ -42,6 +45,7 @@ func (c *CharacterReadRepository) Fetch(ctx context.Context, page int) ([]int, e
 
 	err = json.Unmarshal([]byte(val), &data)
 	if err != nil {
+                log.Println("[ERROR][CharacterReadRepository] Fetch Unmarshal: " + err.Error())
 		return nil, domain.ErrInternalServerError
 	}
 
@@ -54,6 +58,7 @@ func (c *CharacterReadRepository) GetByID(ctx context.Context, id int) (domain.C
 
         isEmpty, err := c.checkRedisKeyEmpty(ctx, key)
 	if err != nil {
+                log.Println("[ERROR][CharacterReadRepository] GetByID checkRedisKeyEmpty: " + err.Error())
 		return domain.Character{}, domain.ErrInternalServerError
 	}
         if isEmpty {
@@ -62,6 +67,7 @@ func (c *CharacterReadRepository) GetByID(ctx context.Context, id int) (domain.C
 
 	val, err := c.Client.Get(ctx, key).Result()
 	if err != nil {
+                log.Println("[ERROR][CharacterReadRepository] GetByID Get: " + err.Error())
 		return domain.Character{}, domain.ErrInternalServerError
 	}
 	if len(val) == 0 {
@@ -70,6 +76,7 @@ func (c *CharacterReadRepository) GetByID(ctx context.Context, id int) (domain.C
 
 	err = json.Unmarshal([]byte(val), &character)
 	if err != nil {
+                log.Println("[ERROR][CharacterReadRepository] GetByID Unmarshal: " + err.Error())
 		return domain.Character{}, domain.ErrInternalServerError
 	}
 
@@ -79,7 +86,7 @@ func (c *CharacterReadRepository) GetByID(ctx context.Context, id int) (domain.C
 func (c *CharacterReadRepository) checkRedisKeyEmpty(ctx context.Context, str string) (bool, error) {
         val, err := c.Client.Exists(ctx, str).Result()
 	if err != nil {
-		return false, domain.ErrInternalServerError
+		return false, err
 	}
 
         return val == 0, nil
