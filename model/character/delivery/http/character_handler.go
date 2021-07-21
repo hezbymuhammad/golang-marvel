@@ -1,9 +1,9 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
-        "fmt"
 
 	"github.com/labstack/echo"
 
@@ -19,7 +19,7 @@ func getStatusCode(err error) int {
 		return http.StatusOK
 	}
 
-        fmt.Errorf("HTTP Error: %v", err)
+	fmt.Errorf("HTTP Error: %v", err)
 	switch err {
 	case domain.ErrInternalServerError:
 		return http.StatusInternalServerError
@@ -44,16 +44,16 @@ func NewCharacterHandler(e *echo.Echo, u domain.CharacterUsecase) *CharacterHand
 	e.GET("/characters/", handler.Fetch)
 	e.GET("/characters/:id", handler.GetByID)
 
-        return handler
+	return handler
 }
 
 func (h *CharacterHandler) Fetch(c echo.Context) error {
-        pageRaw := c.QueryParam("page")
-        if pageRaw == "" {
-                pageRaw = "0"
-        }
+	pageRaw := c.QueryParam("page")
+	if pageRaw == "" {
+		pageRaw = "0"
+	}
 
-        page, err := strconv.Atoi(pageRaw)
+	page, err := strconv.Atoi(pageRaw)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ResponseError{Message: "Bad request param"})
 	}
