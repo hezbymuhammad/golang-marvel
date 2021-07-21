@@ -14,5 +14,5 @@
 docker-compose up
 ```
 
-3. Open http://localhost
-You can access containers via clicking the link. Please wait a moment if you can't see any proxy-able containers. Access container via container-name.localhost.
+3. Open API at http://localhost:8080
+4. Open SwaggerUI at http://localhost:3000

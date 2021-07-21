@@ -21,6 +21,8 @@ services:
       PORT: 3000
     volumes:
       - ./swagger.yaml:/usr/share/nginx/html/openapi/swagger.yaml
+    ports:
+      - 3000:3000
   redis:
     image: redis
     volumes:

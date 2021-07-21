@@ -1,0 +1,131 @@
+openapi: 3.0.1
+info:
+  title: API
+  description: |
+    This is an API server interacting with Marvel API.
+  version: 0.1.0
+servers:
+  - url: http://localhost:8080
+paths:
+    /characters/{characterId}:
+      post:
+        summary: Get a Marvel character from ID
+        description: |
+          Get a Marvel character from ID. Response is cached at `fetchedAt`. `fetchedAt` is also the time fetch request is made to Marvel API. When you first load page, request to Marvel API will be used to fetch cached data.
+        parameters:
+          - $ref: "#/components/parameters/CharacterIdInPath"
+        responses:
+          "200":
+            description: It returns single cached character.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetCharacterResponse"
+          "404":
+            description: When character ID is not found return message
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ResponseNotFoundResponse"
+          "500":
+            description: When page is not found return message
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ResponseInternalServerErrorResponse"
+    /characters:
+      post:
+        summary: Get a Marvel character from IDs
+        description: |
+          Get 10 Marvel character from IDs. Response is cached. When you first load page, request to Marvel API will be used to fetch cached data.
+        parameters:
+          - $ref: "#/components/parameters/CharactersParams"
+        responses:
+          "200":
+            description: It returns 10 character IDs.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/GetCharacterIDsResponse"
+          "404":
+            description: When page is not found return message
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ResponseNotFoundResponse"
+          "500":
+            description: When page is not found return message
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ResponseInternalServerErrorResponse"
+
+components:
+  schemas:
+    GetCharacterResponse:
+      type: object
+      properties:
+        id:
+          type: int
+        name:
+          type: string
+        description:
+          type: string
+        fetchedAt:
+          type: string
+      example:
+        id: 1212
+        name: "lorem ipsum"
+        description: "lorem ipsum"
+        fetchedAt: "2021-07-21T10:08:56.456957Z"
+    GetCharacterIDsResponse:
+      type: array
+      items:
+        type: int
+      example:
+        - 121212
+        - 121213
+        - 121214
+        - 121215
+        - 121216
+        - 121217
+        - 121218
+        - 121219
+        - 121221
+        - 121222
+    ResponseNotFoundResponse:
+      type: object
+      required:
+        - error
+      properties:
+        message:
+          type: string
+      example:
+        message: "Resource not found"
+    ResponseInternalServerErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        message:
+          type: string
+      example:
+        message: "Internal Server Error"
+
+  parameters:
+    CharactersParams:
+      name: page
+      in: query
+      description: "Pagination number. Default 1"
+      required: false
+      example: "1"
+      schema:
+        type: string
+    CharacterIdInPath:
+      name: characterId
+      in: path
+      description: "Marvel character ID"
+      required: true
+      example: "11234"
+      schema:
+        type: string

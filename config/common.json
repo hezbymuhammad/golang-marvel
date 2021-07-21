@@ -3,15 +3,15 @@
                 "url": "https://gateway.marvel.com:443",
                 "private_key": "",
                 "public_key": "",
-                "timeout_in_sec": 120 // 2 minutes
+                "timeout_in_sec": 120
         },
         "redis": {
                 "host": "redis",
                 "port": "6379"
         },
-        "cache_expiration_in_sec": 604800, // 1 week
+        "cache_expiration_in_sec": 604800,
         "server": {
-                "timeout_in_sec": 60, // 1 minutes
+                "timeout_in_sec": 60,
                 "address": ":8080"
         }
 
