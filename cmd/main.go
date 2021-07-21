@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -52,6 +53,11 @@ func main() {
                 httpTimeout,
         )
         characterHttpDelivery.NewCharacterHandler(e, cu)
+
+        log.Println("[INFO] Warming up cache for several seconds")
+        for i := 0; i <= 15; i++ {
+                crWrite.StoreByPage(context.Background(), i)
+        }
 
         log.Fatal(e.Start(viper.GetString("server.address")))
 }
