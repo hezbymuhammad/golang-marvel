@@ -90,9 +90,15 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 		return domain.ErrInternalServerError
 	}
 
+	if res.StatusCode == http.StatusNotFound {
+		return domain.ErrNotFound
+	}
+
 	if res.StatusCode != http.StatusOK {
 		dump, _ := httputil.DumpResponse(res, true)
-		return fmt.Errorf("Error saving page %d: %q", page, dump)
+                nerr := fmt.Errorf("Error saving page %d: %q", page, dump)
+                log.Println("[ERROR][CharacterWriteRepository] StoreByPage httpClient: " + nerr.Error())
+		return domain.ErrNotFound
 	}
 
 	var rs response
@@ -106,7 +112,7 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 	}
 
 	IDs := getArrayFromCharacters(rs.Data.Results)
-	err = r.storePage(ctx, IDs, page)
+	err = r.storePage(ctx, IDs, pageNorm)
 	if err != nil {
                 log.Println("[INFO][CharacterWriteRepository] StoreByPage storePage: " + err.Error())
 		return domain.ErrInternalServerError
@@ -147,7 +153,9 @@ func (r *CharacterWriteRepository) StoreByID(ctx context.Context, id int) error 
 
 	if res.StatusCode != http.StatusOK {
 		dump, _ := httputil.DumpResponse(res, true)
-		return fmt.Errorf("Error saving ID %d: %q", id, dump)
+                nerr := fmt.Errorf("Error saving ID %d: %q", id, dump)
+                log.Println("[ERROR][CharacterWriteRepository] StoreByID httpClient: " + nerr.Error())
+		return domain.ErrNotFound
 	}
 
 	var rs response
@@ -164,7 +172,7 @@ func (r *CharacterWriteRepository) StoreByID(ctx context.Context, id int) error 
 	err = r.storeCharacter(ctx, char)
         if err != nil {
                 log.Println("[INFO][CharacterWriteRepository] StoreByID storeCharacter: " + err.Error())
-                return domain.ErrInternalServerError
+                return err
         }
         return nil
 }
