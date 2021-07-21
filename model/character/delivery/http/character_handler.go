@@ -50,7 +50,7 @@ func NewCharacterHandler(e *echo.Echo, u domain.CharacterUsecase) *CharacterHand
 func (h *CharacterHandler) Fetch(c echo.Context) error {
 	pageRaw := c.QueryParam("page")
 	if pageRaw == "" {
-		pageRaw = "0"
+		pageRaw = "1"
 	}
 
 	page, err := strconv.Atoi(pageRaw)

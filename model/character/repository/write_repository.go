@@ -61,10 +61,10 @@ func (r *CharacterWriteRepository) StoreByPage(ctx context.Context, page int) er
 	hash := generateHash(salt, r.publicKey, r.privateKey)
 
 	var pageNorm int
-	if page > 0 {
-		pageNorm = page - 1
+	if page < 1 {
+		pageNorm = 1
 	} else {
-		pageNorm = 0
+		pageNorm = page
 	}
 	limit := 10
 	offset := 10 * pageNorm

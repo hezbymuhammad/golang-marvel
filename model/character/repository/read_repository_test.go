@@ -72,6 +72,20 @@ func (s *CharacterReadRepositoryTestSuite) TestFailedErrorEmptyKeyFetch() {
 	s.Assert().Equal(err, domain.ErrInternalServerError)
 }
 
+func (s *CharacterReadRepositoryTestSuite) TestSuccessPageNilFetch() {
+	IDs := []int{1, 2, 3}
+	json_data, err := json.Marshal(IDs)
+	if err != nil {
+		s.T().Fatalf("Error: '%s'", err)
+	}
+
+	s.mock.On("Get", mock.Anything, "marvel-characters-page-1").Return(redis.NewStringResult(string(json_data), nil))
+	s.mock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(1, nil))
+	res, err := s.repo.Fetch(context.Background(), 0)
+	s.Assert().Equal(err, nil)
+	s.Assert().Equal(res, IDs)
+}
+
 func (s *CharacterReadRepositoryTestSuite) TestSuccessFetch() {
 	IDs := []int{1, 2, 3}
 	json_data, err := json.Marshal(IDs)

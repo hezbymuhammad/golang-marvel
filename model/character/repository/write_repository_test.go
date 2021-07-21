@@ -48,7 +48,7 @@ func (s *CharacterWriteRepositoryTestSuite) SetupTest() {
 
 func (s *CharacterWriteRepositoryTestSuite) TestSuccessStoreByPage() {
 	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
-	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-0", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", nil))
+	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-1", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", nil))
 	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
 	s.redisMock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(0, nil))
 
@@ -58,7 +58,7 @@ func (s *CharacterWriteRepositoryTestSuite) TestSuccessStoreByPage() {
 
 func (s *CharacterWriteRepositoryTestSuite) TestSuccessStoreByPageWithNumLessThanZero() {
 	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
-	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-0", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", nil))
+	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-1", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", nil))
 	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
 	s.redisMock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(0, nil))
 
@@ -82,7 +82,7 @@ func (s *CharacterWriteRepositoryTestSuite) TestFailedJSONStoreByPage() {
 
 func (s *CharacterWriteRepositoryTestSuite) TestFailedRedisStoreByPage() {
 	gock.New("http://foo.com").Get("/v1/public/characters").Reply(200).BodyString("{\"data\": { \"results\": [{\"id\": 1011334, \"name\": \"lorem\", \"description\": \"asd\"}] }}")
-	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-0", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", errors.New("error")))
+	s.redisMock.On("Set", mock.Anything, "marvel-characters-page-1", "[1011334]", mock.Anything).Return(redis.NewStatusResult("", errors.New("error")))
 	s.redisMock.On("Set", mock.Anything, "marvel-character-id-1011334", mock.Anything, mock.Anything).Return(redis.NewStatusResult("", nil))
 	s.redisMock.On("Exists", mock.Anything, mock.Anything).Return(redis.NewIntResult(0, nil))
 

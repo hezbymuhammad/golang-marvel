@@ -23,7 +23,13 @@ func NewCharacterReadRepository(Conn redis.Cmdable) domain.CharacterReadReposito
 
 func (c *CharacterReadRepository) Fetch(ctx context.Context, page int) ([]int, error) {
 	var data []int
-	key := "marvel-characters-page-" + fmt.Sprint(page)
+	var pageNorm int
+	if page < 1 {
+		pageNorm = 1
+	} else {
+		pageNorm = page
+	}
+	key := "marvel-characters-page-" + fmt.Sprint(pageNorm)
 
 	isEmpty, err := c.checkRedisKeyEmpty(ctx, key)
 	if err != nil {

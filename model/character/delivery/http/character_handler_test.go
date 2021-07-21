@@ -56,7 +56,7 @@ func (s *CharacterHandlerTestSuite) TestPageNilFetch() {
 	ctx := e.NewContext(req, rec)
 
 	arr := []int{1, 2, 3}
-	s.usecase.On("Fetch", mock.Anything, 0).Return(arr, nil)
+	s.usecase.On("Fetch", mock.Anything, 1).Return(arr, nil)
 
 	err = s.handler.Fetch(ctx)
 	s.Assert().Equal(err, nil)
